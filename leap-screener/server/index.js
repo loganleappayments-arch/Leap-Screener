@@ -87,8 +87,9 @@ const fields = [
       throw new Error(`Sugar fetch failed: ${err}`);
     }
 
-    const lead = await sugarRes.json();
-
+const lead = await sugarRes.json();
+console.log('Sugar lead fields:', JSON.stringify(lead, null, 2));
+    
     // Normalize into a clean shape for the frontend
     res.json({
       id:        lead.id,
