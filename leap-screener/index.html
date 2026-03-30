@@ -412,21 +412,23 @@
 
     // Extract record ID from URL
     // Supports: ?record=ID  or  /Leads/ID
-    let leadId = null;
-    try {
-      const u = new URL(urlInput);
-      leadId = u.searchParams.get('record');
-      if (!leadId) {
-        const parts = u.pathname.split('/');
-        const leadsIdx = parts.findIndex(p => p.toLowerCase() === 'leads');
-        if (leadsIdx !== -1) leadId = parts[leadsIdx + 1];
-      }
-    } catch(e) {
-      // Try regex as fallback
-      const m = urlInput.match(/record=([a-f0-9\-]{20,})/i)
-                || urlInput.match(/\/Leads\/([a-f0-9\-]{20,})/i);
-      if (m) leadId = m[1];
-    }
+let leadId = null;
+try {
+  // Handle hash-based URLs: https://company.sugarondemand.com/#Leads/ID
+  // or clean URLs: https://company.sugarondemand.com/Leads/ID
+  const fullUrl = urlInput.replace('/#/', '/').replace('#', '/');
+  const u = new URL(fullUrl);
+  leadId = u.searchParams.get('record');
+  if (!leadId) {
+    const parts = u.pathname.split('/').filter(Boolean);
+    const leadsIdx = parts.findIndex(p => p.toLowerCase() === 'leads');
+    if (leadsIdx !== -1) leadId = parts[leadsIdx + 1];
+  }
+} catch(e) {
+  const m = urlInput.match(/record=([a-f0-9\-]{20,})/i)
+            || urlInput.match(/[/#]Leads\/([a-f0-9\-]{20,})/i);
+  if (m) leadId = m[1];
+}
 
     if (!leadId) {
       showError('Could not find a lead ID in that URL. Make sure you\'re copying the full URL from the lead\'s detail view in Sugar.');
