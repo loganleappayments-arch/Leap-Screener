@@ -19,7 +19,8 @@ const fetch   = (...a) => import('node-fetch').then(({ default: f }) => f(...a))
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors({ origin: process.env.ALLOWED_ORIGIN || '*' }));
+app.use(cors({ origin: '*', methods: ['GET', 'POST', 'OPTIONS'], allowedHeaders: ['Content-Type'] }));
+app.options('*', cors());
 app.use(express.json());
 app.use(express.static('../public'));
 
