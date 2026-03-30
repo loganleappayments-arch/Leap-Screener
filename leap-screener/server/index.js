@@ -79,11 +79,6 @@ app.get('/api/sugar/lead/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-```
-
-Commit and redeploy, then open this URL directly in your browser:
-```
-https://leap-screener-production.up.railway.app/api/sugar/lead/81f3d13a-2b1f-11f1-b56d-b9f552b89728/raw
 
 const fields = [
   'first_name', 'last_name', 'title',
