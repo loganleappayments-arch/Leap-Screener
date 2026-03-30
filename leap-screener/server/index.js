@@ -155,6 +155,14 @@ app.post('/api/screen', async (req, res) => {
   }
 });
 
+app.get('/api/test-key', (_, res) => {
+  const key = process.env.ANTHROPIC_API_KEY;
+  res.json({ 
+    exists: !!key, 
+    prefix: key ? key.substring(0, 15) + '...' : 'MISSING'
+  });
+});
+
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
