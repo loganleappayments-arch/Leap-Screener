@@ -2,15 +2,4 @@
 nixPkgs = ["nodejs"]
 
 [start]
-cmd = "node server/index.js"
-```
-
-Commit it, Railway will auto-redeploy and should pick it up correctly.
-
----
-
-**Option B — Set the start command directly in Railway**
-
-In Railway, go to your service → **Settings** tab → look for **"Custom Start Command"** and set it to:
-```
-node server/index.js
+cmd = "node index.js"
