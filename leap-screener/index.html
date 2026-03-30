@@ -452,18 +452,32 @@ try {
       setField('email',     data.email);
       setField('website',   data.website);
 
-      // Match state select
-      if (data.state) {
-        const sel = document.getElementById('bizState');
-        const opt = Array.from(sel.options).find(o =>
-          o.value.toLowerCase() === data.state.toLowerCase() ||
-          o.text.toLowerCase()  === data.state.toLowerCase()
-        );
-        if (opt) {
-          sel.value = opt.value;
-          markSourced('state');
-        }
-      }
+// Match state select
+if (data.state) {
+  const stateMap = {
+    'AL':'Alabama','AK':'Alaska','AZ':'Arizona','AR':'Arkansas','CA':'California',
+    'CO':'Colorado','CT':'Connecticut','DE':'Delaware','FL':'Florida','GA':'Georgia',
+    'HI':'Hawaii','ID':'Idaho','IL':'Illinois','IN':'Indiana','IA':'Iowa',
+    'KS':'Kansas','KY':'Kentucky','LA':'Louisiana','ME':'Maine','MD':'Maryland',
+    'MA':'Massachusetts','MI':'Michigan','MN':'Minnesota','MS':'Mississippi',
+    'MO':'Missouri','MT':'Montana','NE':'Nebraska','NV':'Nevada','NH':'New Hampshire',
+    'NJ':'New Jersey','NM':'New Mexico','NY':'New York','NC':'North Carolina',
+    'ND':'North Dakota','OH':'Ohio','OK':'Oklahoma','OR':'Oregon','PA':'Pennsylvania',
+    'RI':'Rhode Island','SC':'South Carolina','SD':'South Dakota','TN':'Tennessee',
+    'TX':'Texas','UT':'Utah','VT':'Vermont','VA':'Virginia','WA':'Washington',
+    'WV':'West Virginia','WI':'Wisconsin','WY':'Wyoming'
+  };
+  const raw = data.state.trim();
+  const fullName = stateMap[raw.toUpperCase()] || raw;
+  const sel = document.getElementById('bizState');
+  const opt = Array.from(sel.options).find(o =>
+    o.text.toLowerCase() === fullName.toLowerCase()
+  );
+  if (opt) {
+    sel.value = opt.value;
+    markSourced('state');
+  }
+}
 
       showToast('Lead imported from Sugar CRM');
 
