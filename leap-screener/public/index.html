@@ -403,7 +403,7 @@
   // Point this at your backend server
   const API_BASE = window.location.hostname === 'localhost'
     ? 'http://localhost:3000'
-    : ''; // empty = same origin (recommended for production)
+    : 'leap-screener-production.up.railway.app'; // empty = same origin (recommended for production)
 
   // ── Sugar import ─────────────────────────────────────────────────────────────
   async function importFromSugar() {
