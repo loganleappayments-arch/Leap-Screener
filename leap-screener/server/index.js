@@ -64,14 +64,15 @@ app.get('/api/sugar/lead/:id', async (req, res) => {
     const base  = process.env.SUGAR_URL;
     const id    = req.params.id;
 
-    const fields = [
-      'first_name', 'last_name', 'title',
-      'phone_work', 'phone_mobile',
-      'email1',
-      'company', 'website',
-      'primary_address_state',
-      'lead_source', 'status', 'description',
-    ].join(',');
+const fields = [
+  'first_name', 'last_name', 'title',
+  'phone_work', 'phone_mobile',
+  'email1',
+  'company', 'website',
+  'primary_address_state',
+  'lead_source', 'status', 'description',
+  'merchant_name', 'account_name', 'dba_name',
+  ].join(',');
 
     const sugarRes = await fetch(
       `${base}/rest/v11/Leads/${id}?fields=${fields}`,
@@ -94,7 +95,7 @@ app.get('/api/sugar/lead/:id', async (req, res) => {
       firstName: lead.first_name  || '',
       lastName:  lead.last_name   || '',
       ownerName: `${lead.first_name || ''} ${lead.last_name || ''}`.trim(),
-      bizName:   lead.company     || '',
+      bizName: lead.merchant_name || lead.company || lead.account_name || lead.dba_name || '',
       phone:     lead.phone_work  || lead.phone_mobile || '',
       email:     lead.email1      || '',
       website:   lead.website     || '',
