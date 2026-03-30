@@ -95,7 +95,7 @@ const fields = [
       firstName: lead.first_name  || '',
       lastName:  lead.last_name   || '',
       ownerName: `${lead.first_name || ''} ${lead.last_name || ''}`.trim(),
-      bizName: lead.merchant_name || lead.company || lead.account_name || lead.dba_name || '',
+      bizName: lead.account_name || lead.company || lead.merchant_name || lead.dba_name || '',
       phone:     lead.phone_work  || lead.phone_mobile || '',
       email:     lead.email1      || '',
       website:   lead.website     || '',
