@@ -64,7 +64,51 @@ app.get('/api/sugar/lead/:id', async (req, res) => {
     const base  = process.env.SUGAR_URL;
     const id    = req.params.id;
 
-    app.get('/api/sugar/lead/:id/raw', async (req, res) => {
+    const fields = [
+      'first_name', 'last_name', 'title',
+      'phone_work', 'phone_mobile',
+      'email1',
+      'company', 'website',
+      'primary_address_state',
+      'lead_source', 'status', 'description',
+      'merchant_name', 'account_name', 'dba_name',
+    ].join(',');
+
+    const sugarRes = await fetch(
+      `${base}/rest/v11/Leads/${id}?fields=${fields}`,
+      { headers: { 'OAuth-Token': token } }
+    );
+
+    if (sugarRes.status === 404) {
+      return res.status(404).json({ error: 'Lead not found.' });
+    }
+    if (!sugarRes.ok) {
+      const err = await sugarRes.text();
+      throw new Error(`Sugar fetch failed: ${err}`);
+    }
+
+    const lead = await sugarRes.json();
+
+    res.json({
+      id:        lead.id,
+      firstName: lead.first_name  || '',
+      lastName:  lead.last_name   || '',
+      ownerName: `${lead.first_name || ''} ${lead.last_name || ''}`.trim(),
+      bizName:   lead.account_name || lead.merchant_name || lead.company || lead.dba_name || '',
+      phone:     lead.phone_work  || lead.phone_mobile || '',
+      email:     lead.email1      || '',
+      website:   lead.website     || '',
+      state:     lead.primary_address_state || '',
+    });
+
+  } catch (err) {
+    console.error('[Sugar]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── Route: raw Sugar lead dump (for debugging) ───────────────────────────────
+app.get('/api/sugar/lead/:id/raw', async (req, res) => {
   try {
     const token = await getSugarToken();
     const base  = process.env.SUGAR_URL;
@@ -76,53 +120,6 @@ app.get('/api/sugar/lead/:id', async (req, res) => {
     const lead = await sugarRes.json();
     res.json(lead);
   } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-const fields = [
-  'first_name', 'last_name', 'title',
-  'phone_work', 'phone_mobile',
-  'email1',
-  'company', 'website',
-  'primary_address_state',
-  'lead_source', 'status', 'description',
-  'merchant_name', 'account_name', 'dba_name',
-  ].join(',');
-
-    const sugarRes = await fetch(
-      `${base}/rest/v11/Leads/${id}?fields=${fields}`,
-      { headers: { 'OAuth-Token': token } }
-    );
-
-    if (sugarRes.status === 404) {
-      return res.status(404).json({ error: 'Lead not found. Check the URL and try again.' });
-    }
-    if (!sugarRes.ok) {
-      const err = await sugarRes.text();
-      throw new Error(`Sugar fetch failed: ${err}`);
-    }
-
-const lead = await sugarRes.json();
-console.log('Sugar lead fields:', JSON.stringify(lead, null, 2));
-    
-    // Normalize into a clean shape for the frontend
-    res.json({
-      id:        lead.id,
-      firstName: lead.first_name  || '',
-      lastName:  lead.last_name   || '',
-      ownerName: `${lead.first_name || ''} ${lead.last_name || ''}`.trim(),
-      bizName: lead.account_name || lead.company || lead.merchant_name || lead.dba_name || '',
-      phone:     lead.phone_work  || lead.phone_mobile || '',
-      email:     lead.email1      || '',
-      website:   lead.website     || '',
-      state:     lead.primary_address_state || '',
-      source:    lead.lead_source || '',
-      status:    lead.status      || '',
-    });
-
-  } catch (err) {
-    console.error('[Sugar]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
