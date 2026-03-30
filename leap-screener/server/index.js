@@ -72,6 +72,7 @@ app.get('/api/sugar/lead/:id', async (req, res) => {
       'primary_address_state',
       'lead_source', 'status', 'description',
       'merchant_name', 'account_name', 'dba_name',
+      'primary_address_state_c', 'phone_mobile_c', 'app_website_address_c',
     ].join(',');
 
     const sugarRes = await fetch(
@@ -89,17 +90,17 @@ app.get('/api/sugar/lead/:id', async (req, res) => {
 
     const lead = await sugarRes.json();
 
-    res.json({
-      id:        lead.id,
-      firstName: lead.first_name  || '',
-      lastName:  lead.last_name   || '',
-      ownerName: `${lead.first_name || ''} ${lead.last_name || ''}`.trim(),
-      bizName:   lead.account_name || lead.merchant_name || lead.company || lead.dba_name || '',
-      phone:     lead.phone_work  || lead.phone_mobile || '',
-      email:     lead.email1      || '',
-      website:   lead.website     || '',
-      state:     lead.primary_address_state || '',
-    });
+res.json({
+  id:        lead.id,
+  firstName: lead.first_name  || '',
+  lastName:  lead.last_name   || '',
+  ownerName: `${lead.first_name || ''} ${lead.last_name || ''}`.trim(),
+  bizName:   lead.account_name || lead.merchant_name || lead.company || '',
+  phone:     lead.phone_work  || lead.phone_mobile_c || lead.phone_mobile || '',
+  email:     lead.email1      || '',
+  website:   lead.app_website_address_c || lead.website || '',
+  state:     lead.primary_address_state_c || lead.primary_address_state || '',
+});
 
   } catch (err) {
     console.error('[Sugar]', err.message);
