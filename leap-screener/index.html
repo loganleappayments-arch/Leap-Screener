@@ -1,1 +1,740 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Leap Payments — Lead Screener</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2127;
+    --border: #2a2d35;
+    --border2: #363a45;
+    --text: #e8eaf0;
+    --muted: #7a7f8e;
+    --accent: #4f7cff;
+    --accent2: #3a5fd4;
+    --green: #22c97a;
+    --green-bg: rgba(34,201,122,0.08);
+    --green-border: rgba(34,201,122,0.25);
+    --yellow: #f5c842;
+    --yellow-bg: rgba(245,200,66,0.08);
+    --yellow-border: rgba(245,200,66,0.25);
+    --red: #ff5a5a;
+    --red-bg: rgba(255,90,90,0.08);
+    --red-border: rgba(255,90,90,0.25);
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px; height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; background: var(--bg); z-index: 100;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; }
+  .logo-mark { width: 26px; height: 26px; background: var(--accent); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: #fff; }
+  .header-badge { font-family: var(--mono); font-size: 11px; color: var(--muted); border: 1px solid var(--border); padding: 3px 10px; border-radius: 20px; }
+
+  .main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+  .page-title { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+
+  /* Sugar URL importer */
+  .import-card {
+    background: linear-gradient(135deg, rgba(79,124,255,0.06) 0%, rgba(79,124,255,0.02) 100%);
+    border: 1px solid rgba(79,124,255,0.25);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+  }
+  .import-card .input-group { flex: 1; }
+  .import-label {
+    font-size: 12px; font-family: var(--mono);
+    color: var(--accent); letter-spacing: 0.06em;
+    text-transform: uppercase; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .import-label::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+  .import-input {
+    background: var(--surface2);
+    border: 1px solid rgba(79,124,255,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .import-input:focus { border-color: var(--accent); }
+  .import-input::placeholder { color: var(--muted); }
+  .import-btn {
+    padding: 10px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    display: flex; align-items: center; gap: 7px;
+    height: 42px;
+  }
+  .import-btn:hover { background: var(--accent2); }
+  .import-btn:disabled { background: var(--border2); color: var(--muted); cursor: not-allowed; }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px; color: var(--muted);
+    font-size: 12px; font-family: var(--mono);
+  }
+  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* Input card */
+  .input-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px; margin-bottom: 28px; }
+  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-family: var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  input, select {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; color: var(--text); font-family: var(--sans); font-size: 14px;
+    outline: none; transition: border-color 0.15s; width: 100%;
+  }
+  input:focus, select:focus { border-color: var(--accent); }
+  input::placeholder { color: var(--muted); }
+  select option { background: var(--surface2); }
+
+  /* Populated indicator */
+  .field-sourced {
+    border-color: rgba(34,201,122,0.4) !important;
+    background: rgba(34,201,122,0.04) !important;
+  }
+  .sourced-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 10px; font-family: var(--mono);
+    color: var(--green); margin-left: 8px;
+  }
+
+  .run-btn {
+    width: 100%; padding: 13px;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 8px; font-family: var(--sans); font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .run-btn:hover { background: var(--accent2); }
+  .run-btn:active { transform: scale(0.99); }
+  .run-btn:disabled { background: var(--border2); color: var(--muted); cursor: not-allowed; transform: none; }
+
+  /* Loading */
+  .loading-wrap { display: none; flex-direction: column; align-items: center; gap: 16px; padding: 48px 0; }
+  .loading-wrap.active { display: flex; }
+  .spinner { width: 36px; height: 36px; border: 2px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-steps { display: flex; flex-direction: column; gap: 8px; width: 320px; }
+  .loading-step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--muted); font-family: var(--mono); transition: color 0.3s; }
+  .loading-step.done { color: var(--green); }
+  .loading-step.active-step { color: var(--text); }
+  .step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); flex-shrink: 0; transition: background 0.3s; }
+  .loading-step.done .step-dot { background: var(--green); }
+  .loading-step.active-step .step-dot { background: var(--accent); }
+
+  /* Results */
+  #results { display: none; }
+  #results.visible { display: block; }
+
+  .score-banner { border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; border: 1px solid; }
+  .score-banner.green { background: var(--green-bg); border-color: var(--green-border); }
+  .score-banner.yellow { background: var(--yellow-bg); border-color: var(--yellow-border); }
+  .score-banner.red { background: var(--red-bg); border-color: var(--red-border); }
+  .score-left { display: flex; align-items: center; gap: 16px; }
+  .score-icon { font-size: 28px; width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .green .score-icon { background: rgba(34,201,122,0.12); }
+  .yellow .score-icon { background: rgba(245,200,66,0.12); }
+  .red .score-icon { background: rgba(255,90,90,0.12); }
+  .score-label { font-size: 12px; font-family: var(--mono); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 2px; }
+  .green .score-label { color: var(--green); }
+  .yellow .score-label { color: var(--yellow); }
+  .red .score-label { color: var(--red); }
+  .score-title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .score-summary { font-size: 13px; color: var(--muted); max-width: 420px; }
+  .score-num { text-align: right; font-family: var(--mono); }
+  .score-num .num { font-size: 42px; font-weight: 500; line-height: 1; }
+  .green .score-num .num { color: var(--green); }
+  .yellow .score-num .num { color: var(--yellow); }
+  .red .score-num .num { color: var(--red); }
+  .score-num .out-of { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* Lead info strip */
+  .lead-strip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 13px;
+  }
+  .lead-strip-item { display: flex; flex-direction: column; gap: 2px; }
+  .lead-strip-label { font-size: 10px; font-family: var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .lead-strip-value { font-weight: 500; }
+
+  .checks-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .check-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .check-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .check-title { font-size: 12px; font-family: var(--mono); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+  .status-pill { font-size: 11px; font-family: var(--mono); font-weight: 500; padding: 3px 9px; border-radius: 20px; letter-spacing: 0.04em; }
+  .pill-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .pill-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .pill-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .pill-gray { background: rgba(122,127,142,0.1); color: var(--muted); border: 1px solid var(--border); }
+  .check-value { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .check-detail { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .check-flags { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .flag { font-size: 11px; font-family: var(--mono); padding: 3px 8px; border-radius: 4px; background: rgba(255,90,90,0.08); color: var(--red); border: 1px solid rgba(255,90,90,0.2); }
+  .flag-warn { background: rgba(245,200,66,0.08); color: var(--yellow); border: 1px solid rgba(245,200,66,0.2); }
+
+  .manual-section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; }
+  .section-heading { font-size: 13px; font-family: var(--mono); color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-heading::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .manual-items { display: flex; flex-direction: column; gap: 12px; }
+  .manual-item { display: flex; gap: 14px; padding: 14px 16px; background: var(--surface2); border-radius: 10px; border: 1px solid var(--border); }
+  .manual-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .manual-title { font-size: 14px; font-weight: 500; margin-bottom: 3px; }
+  .manual-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .manual-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 12px; font-family: var(--mono); color: var(--accent); text-decoration: none; border: 1px solid rgba(79,124,255,0.25); padding: 4px 10px; border-radius: 6px; background: rgba(79,124,255,0.06); transition: background 0.15s; }
+  .manual-link:hover { background: rgba(79,124,255,0.12); }
+
+  .ai-summary { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px 28px; margin-bottom: 24px; }
+  .ai-summary-text { font-size: 14px; line-height: 1.75; color: var(--text); }
+
+  .action-bar { display: flex; gap: 10px; }
+  .btn-secondary { flex: 1; padding: 11px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: border-color 0.15s; }
+  .btn-secondary:hover { border-color: var(--border2); }
+  .btn-primary { flex: 1; padding: 11px; background: var(--accent); border: none; color: #fff; border-radius: 8px; font-family: var(--sans); font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .btn-primary:hover { background: var(--accent2); }
+
+  .error-box { display: none; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 10px; padding: 14px 18px; font-size: 13px; color: var(--red); margin-top: 12px; font-family: var(--mono); line-height: 1.5; }
+  .error-box.visible { display: block; }
+
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface); border: 1px solid var(--green-border);
+    color: var(--green); font-size: 13px; font-family: var(--mono);
+    padding: 12px 18px; border-radius: 10px;
+    transform: translateY(80px); opacity: 0;
+    transition: transform 0.3s, opacity 0.3s;
+    z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  @media (max-width: 640px) {
+    .input-grid, .checks-grid { grid-template-columns: 1fr; }
+    .input-group.full { grid-column: 1; }
+    .score-banner { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .score-num { text-align: left; }
+    .import-card { flex-direction: column; }
+    .lead-strip { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">LP</div>
+    LEAP PAYMENTS
+  </div>
+  <div class="header-badge">Lead Screener v2.0</div>
+</header>
+
+<div class="main">
+  <div class="page-title">Lead Fraud Screener</div>
+  <div class="page-sub">Paste a Sugar CRM lead URL to auto-import, or fill in the fields manually.</div>
+
+  <!-- Sugar URL importer -->
+  <div class="import-card">
+    <div class="input-group" style="flex:1">
+      <div class="import-label">Import from Sugar CRM</div>
+      <input class="import-input" type="text" id="sugarUrl"
+        placeholder="https://yourcompany.sugarcrm.com/index.php?module=Leads&action=DetailView&record=abc123"/>
+    </div>
+    <button class="import-btn" id="importBtn" onclick="importFromSugar()">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+      Import Lead
+    </button>
+  </div>
+
+  <div class="divider">or enter manually</div>
+
+  <!-- Manual input card -->
+  <div class="input-card">
+    <div class="input-grid">
+      <div class="input-group">
+        <label>Business Name <span class="sourced-badge" id="badge-bizName" style="display:none">✓ from Sugar</span></label>
+        <input type="text" id="bizName" placeholder="Acme Auto Detailing LLC"/>
+      </div>
+      <div class="input-group">
+        <label>Owner / Contact Name <span class="sourced-badge" id="badge-ownerName" style="display:none">✓ from Sugar</span></label>
+        <input type="text" id="ownerName" placeholder="John Smith"/>
+      </div>
+      <div class="input-group">
+        <label>Phone Number <span class="sourced-badge" id="badge-phone" style="display:none">✓ from Sugar</span></label>
+        <input type="tel" id="phone" placeholder="+1 555 000 0000"/>
+      </div>
+      <div class="input-group">
+        <label>Email Address <span class="sourced-badge" id="badge-email" style="display:none">✓ from Sugar</span></label>
+        <input type="email" id="email" placeholder="john@acmeauto.com"/>
+      </div>
+      <div class="input-group">
+        <label>Website URL <span class="sourced-badge" id="badge-website" style="display:none">✓ from Sugar</span></label>
+        <input type="text" id="website" placeholder="acmeautodetailing.com"/>
+      </div>
+      <div class="input-group">
+        <label>Business State <span class="sourced-badge" id="badge-state" style="display:none">✓ from Sugar</span></label>
+        <select id="bizState">
+          <option value="">Select state...</option>
+          <option>Alabama</option><option>Alaska</option><option>Arizona</option>
+          <option>Arkansas</option><option>California</option><option>Colorado</option>
+          <option>Connecticut</option><option>Delaware</option><option>Florida</option>
+          <option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+          <option>Illinois</option><option>Indiana</option><option>Iowa</option>
+          <option>Kansas</option><option>Kentucky</option><option>Louisiana</option>
+          <option>Maine</option><option>Maryland</option><option>Massachusetts</option>
+          <option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+          <option>Missouri</option><option>Montana</option><option>Nebraska</option>
+          <option>Nevada</option><option>New Hampshire</option><option>New Jersey</option>
+          <option>New Mexico</option><option>New York</option><option>North Carolina</option>
+          <option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+          <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option>
+          <option>South Carolina</option><option>South Dakota</option><option>Tennessee</option>
+          <option>Texas</option><option>Utah</option><option>Vermont</option>
+          <option>Virginia</option><option>Washington</option><option>West Virginia</option>
+          <option>Wisconsin</option><option>Wyoming</option>
+        </select>
+      </div>
+    </div>
+    <button class="run-btn" id="runBtn" onclick="runScreening()">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+      Run Screening
+    </button>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-wrap" id="loadingWrap">
+    <div class="spinner"></div>
+    <div class="loading-steps">
+      <div class="loading-step" id="step-1"><div class="step-dot"></div>Validating phone number...</div>
+      <div class="loading-step" id="step-2"><div class="step-dot"></div>Checking email domain...</div>
+      <div class="loading-step" id="step-3"><div class="step-dot"></div>Running WHOIS / domain lookup...</div>
+      <div class="loading-step" id="step-4"><div class="step-dot"></div>Querying Secretary of State...</div>
+      <div class="loading-step" id="step-5"><div class="step-dot"></div>Generating risk assessment...</div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results">
+
+    <div class="score-banner" id="scoreBanner">
+      <div class="score-left">
+        <div class="score-icon" id="scoreIcon"></div>
+        <div>
+          <div class="score-label" id="scoreLabel"></div>
+          <div class="score-title" id="scoreTitle"></div>
+          <div class="score-summary" id="scoreSummary"></div>
+        </div>
+      </div>
+      <div class="score-num">
+        <div class="num" id="scoreNum"></div>
+        <div class="out-of">risk score / 100</div>
+      </div>
+    </div>
+
+    <!-- Lead info strip -->
+    <div class="lead-strip" id="leadStrip"></div>
+
+    <div class="checks-grid" id="checksGrid"></div>
+
+    <div class="manual-section">
+      <div class="section-heading">Manual Review Required</div>
+      <div class="manual-items" id="manualItems"></div>
+    </div>
+
+    <div class="ai-summary">
+      <div class="section-heading">AI Assessment</div>
+      <div class="ai-summary-text" id="aiSummaryText"></div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn-secondary" onclick="clearForm()">Screen Another Lead</button>
+      <button class="btn-primary" onclick="window.print()">Print / Save Report</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Config ──────────────────────────────────────────────────────────────────
+  // Point this at your backend server
+  const API_BASE = window.location.hostname === 'localhost'
+    ? 'http://localhost:3000'
+    : 'leap-screener-production.up.railway.app'; // empty = same origin (recommended for production)
+
+  // ── Sugar import ─────────────────────────────────────────────────────────────
+  async function importFromSugar() {
+    const urlInput = document.getElementById('sugarUrl').value.trim();
+    if (!urlInput) { showError('Paste a Sugar CRM lead URL first.'); return; }
+
+    // Extract record ID from URL
+    // Supports: ?record=ID  or  /Leads/ID
+    let leadId = null;
+    try {
+      const u = new URL(urlInput);
+      leadId = u.searchParams.get('record');
+      if (!leadId) {
+        const parts = u.pathname.split('/');
+        const leadsIdx = parts.findIndex(p => p.toLowerCase() === 'leads');
+        if (leadsIdx !== -1) leadId = parts[leadsIdx + 1];
+      }
+    } catch(e) {
+      // Try regex as fallback
+      const m = urlInput.match(/record=([a-f0-9\-]{20,})/i)
+                || urlInput.match(/\/Leads\/([a-f0-9\-]{20,})/i);
+      if (m) leadId = m[1];
+    }
+
+    if (!leadId) {
+      showError('Could not find a lead ID in that URL. Make sure you\'re copying the full URL from the lead\'s detail view in Sugar.');
+      return;
+    }
+
+    hideError();
+    const btn = document.getElementById('importBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:spin .7s linear infinite"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Importing...';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/sugar/lead/${leadId}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to fetch lead from Sugar.');
+
+      // Populate fields
+      setField('bizName',   data.bizName);
+      setField('ownerName', data.ownerName);
+      setField('phone',     data.phone);
+      setField('email',     data.email);
+      setField('website',   data.website);
+
+      // Match state select
+      if (data.state) {
+        const sel = document.getElementById('bizState');
+        const opt = Array.from(sel.options).find(o =>
+          o.value.toLowerCase() === data.state.toLowerCase() ||
+          o.text.toLowerCase()  === data.state.toLowerCase()
+        );
+        if (opt) {
+          sel.value = opt.value;
+          markSourced('state');
+        }
+      }
+
+      showToast('Lead imported from Sugar CRM');
+
+    } catch(err) {
+      showError(err.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg> Import Lead';
+    }
+  }
+
+  function setField(id, value) {
+    if (!value) return;
+    const el = document.getElementById(id);
+    el.value = value;
+    el.classList.add('field-sourced');
+    markSourced(id === 'bizState' ? 'state' : id);
+  }
+
+  function markSourced(key) {
+    const badge = document.getElementById('badge-' + key);
+    if (badge) badge.style.display = 'inline-flex';
+  }
+
+  // Allow pressing Enter in the Sugar URL field
+  document.getElementById('sugarUrl').addEventListener('keydown', e => {
+    if (e.key === 'Enter') importFromSugar();
+  });
+
+  // ── Screening ────────────────────────────────────────────────────────────────
+  async function runScreening() {
+    const bizName   = document.getElementById('bizName').value.trim();
+    const ownerName = document.getElementById('ownerName').value.trim();
+    const phone     = document.getElementById('phone').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const website   = document.getElementById('website').value.trim();
+    const bizState  = document.getElementById('bizState').value;
+
+    if (!bizName || !phone || !email) {
+      showError('Please provide at least Business Name, Phone, and Email before screening.');
+      return;
+    }
+
+    hideError();
+    document.getElementById('results').classList.remove('visible');
+    document.getElementById('runBtn').disabled = true;
+    showLoading(true);
+
+    const steps    = ['step-1','step-2','step-3','step-4','step-5'];
+    let   stepIdx  = 0;
+    const stepTimer = setInterval(() => {
+      if (stepIdx > 0) {
+        document.getElementById(steps[stepIdx-1]).classList.remove('active-step');
+        document.getElementById(steps[stepIdx-1]).classList.add('done');
+      }
+      if (stepIdx < steps.length) {
+        document.getElementById(steps[stepIdx]).classList.add('active-step');
+        stepIdx++;
+      } else {
+        clearInterval(stepTimer);
+      }
+    }, 900);
+
+    try {
+      const prompt = buildPrompt(bizName, ownerName, phone, email, website, bizState);
+      const response = await fetch(`${API_BASE}/api/screen`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role: 'user', content: prompt }]
+        })
+      });
+
+      clearInterval(stepTimer);
+      steps.forEach(s => {
+        document.getElementById(s).classList.add('done');
+        document.getElementById(s).classList.remove('active-step');
+      });
+
+      if (!response.ok) throw new Error('Screening API error: ' + response.status);
+      const data = await response.json();
+      const text = data.content.map(b => b.text || '').join('');
+
+      let parsed;
+      try {
+        const clean = text.replace(/```json|```/g, '').trim();
+        parsed = JSON.parse(clean);
+      } catch(e) {
+        throw new Error('Could not parse screening results. Please try again.');
+      }
+
+      showLoading(false);
+      renderResults(parsed, { bizName, ownerName, phone, email, website, bizState });
+
+    } catch(err) {
+      clearInterval(stepTimer);
+      showLoading(false);
+      document.getElementById('runBtn').disabled = false;
+      showError(err.message || 'Something went wrong. Please try again.');
+    }
+  }
+
+  // ── Prompt builder ───────────────────────────────────────────────────────────
+  function buildPrompt(bizName, ownerName, phone, email, website, bizState) {
+    const emailDomain   = email.includes('@') ? email.split('@')[1] : email;
+    const websiteDomain = website.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+
+    return `You are a fraud screening analyst for Leap Payments, a high-risk payment processor. Analyze the following lead and return ONLY a valid JSON object. No preamble, no explanation, no markdown fences.
+
+Lead:
+- Business name: ${bizName}
+- Owner/contact: ${ownerName || 'Not provided'}
+- Phone: ${phone}
+- Email: ${email}
+- Email domain: ${emailDomain}
+- Website: ${website || 'Not provided'}
+- Website domain: ${websiteDomain || 'Not provided'}
+- State: ${bizState || 'Not provided'}
+
+Analyze for fraud risk. Consider:
+1. Phone format, VoIP/burner signals, suspicious patterns
+2. Email domain — free/throwaway vs business domain, match to business name
+3. Website domain — age signals, TLD, match to business name, suspicious patterns
+4. Business name legitimacy
+5. Overall consistency across phone/email/name/website
+6. Secretary of State lookup guidance for ${bizState || 'their state'}
+7. ScamAdviser / Scam-Detector guidance for ${websiteDomain || bizName}
+
+Return ONLY this JSON:
+{
+  "riskScore": <0-100, higher=more risky>,
+  "riskLevel": "<green|yellow|red>",
+  "riskTitle": "<short verdict>",
+  "riskSummary": "<1 sentence>",
+  "checks": [
+    { "id": "phone", "title": "Phone Validation", "status": "<green|yellow|red>", "value": "<finding>", "detail": "<1-2 sentences>", "flags": [] },
+    { "id": "email", "title": "Email / Domain",   "status": "<green|yellow|red>", "value": "<finding>", "detail": "<1-2 sentences>", "flags": [] },
+    { "id": "domain","title": "Website / Domain",  "status": "<green|yellow|red>", "value": "<finding>", "detail": "<1-2 sentences>", "flags": [] },
+    { "id": "biz",   "title": "Business Name",     "status": "<green|yellow|red>", "value": "<finding>", "detail": "<1-2 sentences>", "flags": [] }
+  ],
+  "manualReviewItems": [
+    { "title": "Google Business Search", "description": "<what to search and look for>", "url": "https://www.google.com/search?q=${encodeURIComponent(bizName + ' ' + bizState)}" },
+    { "title": "Secretary of State Lookup", "description": "<step-by-step instructions for ${bizState || 'their state'}>", "url": "<best direct SoS search URL for ${bizState}>" },
+    { "title": "ScamAdviser Check", "description": "<what to look for>", "url": "https://www.scamadviser.com/check-website/${websiteDomain || bizName}" },
+    { "title": "Scam-Detector Check", "description": "Run through Scam-Detector for an independent trust score.", "url": "https://www.scam-detector.com/validator/${websiteDomain || ''}" },
+    { "title": "WHOIS Lookup", "description": "Check domain age, registrar, owner. Flag if under 1 year old or using privacy protection.", "url": "http://cqcounter.com/whois/?q=${websiteDomain || ''}" }
+  ],
+  "aiSummary": "<3-4 sentences. Plain English. What looks good, what looks suspicious, what to check before calling. Be direct and specific.>"
+}`;
+  }
+
+  // ── Render results ───────────────────────────────────────────────────────────
+  function renderResults(data, lead) {
+    const banner = document.getElementById('scoreBanner');
+    banner.className = 'score-banner ' + data.riskLevel;
+    const icons = { green: '✓', yellow: '⚠', red: '✕' };
+    document.getElementById('scoreIcon').textContent   = icons[data.riskLevel] || '?';
+    document.getElementById('scoreLabel').textContent  = { green: 'LOW RISK', yellow: 'REVIEW NEEDED', red: 'HIGH RISK' }[data.riskLevel] || '';
+    document.getElementById('scoreTitle').textContent  = data.riskTitle   || '';
+    document.getElementById('scoreSummary').textContent = data.riskSummary || '';
+    document.getElementById('scoreNum').textContent    = data.riskScore ?? '—';
+
+    // Lead info strip
+    const strip = document.getElementById('leadStrip');
+    strip.innerHTML = '';
+    const stripFields = [
+      ['Business', lead.bizName], ['Contact', lead.ownerName],
+      ['Phone', lead.phone], ['Email', lead.email],
+      ['Website', lead.website], ['State', lead.bizState],
+    ];
+    stripFields.filter(([,v]) => v).forEach(([label, value]) => {
+      strip.innerHTML += `<div class="lead-strip-item"><div class="lead-strip-label">${label}</div><div class="lead-strip-value">${value}</div></div>`;
+    });
+
+    // Check cards
+    const grid = document.getElementById('checksGrid');
+    grid.innerHTML = '';
+    (data.checks || []).forEach(check => {
+      const pillClass = { green: 'pill-green', yellow: 'pill-yellow', red: 'pill-red' }[check.status] || 'pill-gray';
+      const pillLabel = { green: 'OK', yellow: 'Review', red: 'Flag' }[check.status] || 'N/A';
+      const flagsHtml = (check.flags || []).filter(f => f).map(f =>
+        `<span class="flag ${check.status === 'yellow' ? 'flag-warn' : ''}">${f}</span>`
+      ).join('');
+      grid.innerHTML += `
+        <div class="check-card">
+          <div class="check-header">
+            <div class="check-title">${check.title}</div>
+            <div class="status-pill ${pillClass}">${pillLabel}</div>
+          </div>
+          <div class="check-value">${check.value || '—'}</div>
+          <div class="check-detail">${check.detail || ''}</div>
+          ${flagsHtml ? `<div class="check-flags">${flagsHtml}</div>` : ''}
+        </div>`;
+    });
+
+    // Manual review
+    const manualItems = document.getElementById('manualItems');
+    manualItems.innerHTML = '';
+    const manualIcons = {
+      'Google Business Search':   '🔍',
+      'Secretary of State Lookup':'🏛️',
+      'ScamAdviser Check':        '🛡️',
+      'Scam-Detector Check':      '🔎',
+      'WHOIS Lookup':             '🌐',
+    };
+    (data.manualReviewItems || []).forEach(item => {
+      const icon = manualIcons[item.title] || '📋';
+      manualItems.innerHTML += `
+        <div class="manual-item">
+          <div class="manual-icon">${icon}</div>
+          <div>
+            <div class="manual-title">${item.title}</div>
+            <div class="manual-desc">${item.description}</div>
+            ${item.url ? `<a class="manual-link" href="${item.url}" target="_blank">Open ↗</a>` : ''}
+          </div>
+        </div>`;
+    });
+
+    document.getElementById('aiSummaryText').textContent = data.aiSummary || '';
+    document.getElementById('results').classList.add('visible');
+    document.getElementById('runBtn').disabled = false;
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+  function showLoading(show) {
+    const wrap = document.getElementById('loadingWrap');
+    if (show) {
+      wrap.classList.add('active');
+      ['step-1','step-2','step-3','step-4','step-5'].forEach(s => {
+        const el = document.getElementById(s);
+        el.classList.remove('done','active-step');
+      });
+    } else {
+      wrap.classList.remove('active');
+    }
+  }
+
+  function showError(msg) {
+    const box = document.getElementById('errorBox');
+    box.textContent = msg;
+    box.classList.add('visible');
+  }
+
+  function hideError() {
+    document.getElementById('errorBox').classList.remove('visible');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = '✓ ' + msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  function clearForm() {
+    ['bizName','ownerName','phone','email','website'].forEach(id => {
+      const el = document.getElementById(id);
+      el.value = '';
+      el.classList.remove('field-sourced');
+    });
+    document.getElementById('bizState').value = '';
+    document.getElementById('sugarUrl').value = '';
+    ['bizName','ownerName','phone','email','website','state'].forEach(k => {
+      const b = document.getElementById('badge-' + k);
+      if (b) b.style.display = 'none';
+    });
+    document.getElementById('results').classList.remove('visible');
+    document.getElementById('runBtn').disabled = false;
+    hideError();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
