@@ -683,25 +683,61 @@ Return ONLY this JSON:
       'Scam-Detector Check':      '🔎',
       'WHOIS Lookup':             '🌐',
     };
-    (data.manualReviewItems || []).forEach(item => {
-      const icon = manualIcons[item.title] || '📋';
-      manualItems.innerHTML += `
-        <div class="manual-item">
-          <div class="manual-icon">${icon}</div>
-          <div>
-            <div class="manual-title">${item.title}</div>
-            <div class="manual-desc">${item.description}</div>
-            ${item.url ? `<a class="manual-link" href="${item.url}" target="_blank">Open ↗</a>` : ''}
+(data.manualReviewItems || []).forEach(item => {
+  const icon = manualIcons[item.title] || '📋';
+  const isGoogle = item.title === 'Google Business Search';
+  const itemId = 'manual-' + item.title.replace(/\s+/g, '-').toLowerCase();
+
+  manualItems.innerHTML += `
+    <div class="manual-item" id="${itemId}">
+      <div class="manual-icon">${icon}</div>
+      <div style="flex:1">
+        <div class="manual-title">${item.title}</div>
+        <div class="manual-desc">${item.description}</div>
+        ${isGoogle ? `
+          <div id="google-results-wrap" style="margin-top:10px"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <button class="manual-link" onclick="loadGoogleResults('${encodeURIComponent(item.url.split('q=')[1] || '')}', '${encodeURIComponent(item.url)}')">
+              🔍 Show top results
+            </button>
+            <a class="manual-link" href="${item.url}" target="_blank">See all on Google ↗</a>
           </div>
-        </div>`;
-    });
+        ` : item.url ? `<a class="manual-link" href="${item.url}" target="_blank">Open ↗</a>` : ''}
+      </div>
+    </div>`;
+});
 
     document.getElementById('aiSummaryText').textContent = data.aiSummary || '';
     document.getElementById('results').classList.add('visible');
     document.getElementById('runBtn').disabled = false;
     document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
   }
+async function loadGoogleResults(encodedQuery, encodedSearchUrl) {
+  const wrap = document.getElementById('google-results-wrap');
+  wrap.innerHTML = '<div style="font-size:12px;font-family:var(--mono);color:var(--muted);padding:8px 0">Loading results...</div>';
 
+  try {
+    const query = decodeURIComponent(encodedQuery);
+    const res = await fetch(`${API_BASE}/api/google-search?q=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    if (!res.ok || !data.results?.length) {
+      wrap.innerHTML = '<div style="font-size:12px;font-family:var(--mono);color:var(--muted)">No results found.</div>';
+      return;
+    }
+
+    wrap.innerHTML = data.results.map(r => `
+      <a href="${r.url}" target="_blank" style="display:block;padding:10px 12px;margin-bottom:8px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:11px;font-family:var(--mono);color:var(--accent);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.url}</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px">${r.title}</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5">${r.snippet}</div>
+      </a>
+    `).join('');
+
+  } catch(err) {
+    wrap.innerHTML = `<div style="font-size:12px;font-family:var(--mono);color:var(--red)">${err.message}</div>`;
+  }
+}
   // ── Helpers ──────────────────────────────────────────────────────────────────
   function showLoading(show) {
     const wrap = document.getElementById('loadingWrap');
