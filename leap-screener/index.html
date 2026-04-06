@@ -516,10 +516,10 @@ if (data.state) {
     const website   = document.getElementById('website').value.trim();
     const bizState  = document.getElementById('bizState').value;
 
-    if (!bizName || !phone || !email) {
-      showError('Please provide at least Business Name, Phone, and Email before screening.');
-      return;
-    }
+if (!bizName) {
+  showError('Please provide at least a Business Name before screening.');
+  return;
+}
 
     hideError();
     document.getElementById('results').classList.remove('visible');
