@@ -164,32 +164,37 @@ app.get('/api/test-key', (_, res) => {
 });
 
 
-// ─── Route: Google search ─────────────────────────────────────────────────────
+// ─── Route: Brave search ──────────────────────────────────────────────────────
 app.get('/api/google-search', async (req, res) => {
   try {
     const query = req.query.q;
     if (!query) return res.status(400).json({ error: 'Missing query' });
 
-    const apiKey = process.env.GOOGLE_API_KEY;
-    const cseId  = process.env.GOOGLE_CSE_ID;
-    if (!apiKey || !cseId) throw new Error('Google API not configured');
+    const apiKey = process.env.BRAVE_API_KEY;
+    if (!apiKey) throw new Error('BRAVE_API_KEY not configured on server.');
 
-    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cseId}&q=${encodeURIComponent(query)}&num=5`;
-    const response = await fetch(url);
+    const url = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=5&result_filter=web`;
+    const response = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'Accept-Encoding': 'gzip',
+        'X-Subscription-Token': apiKey,
+      }
+    });
+
     const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Brave API error');
 
-    if (!response.ok) throw new Error(data.error?.message || 'Google API error');
-
-    const results = (data.items || []).map(item => ({
+    const results = (data.web?.results || []).map(item => ({
       title:   item.title,
-      url:     item.link,
-      snippet: item.snippet,
+      url:     item.url,
+      snippet: item.description || '',
     }));
 
     res.json({ results, searchUrl: `https://www.google.com/search?q=${encodeURIComponent(query)}` });
 
   } catch (err) {
-    console.error('[Google]', err.message);
+    console.error('[Brave]', err.message);
     res.status(500).json({ error: err.message });
   }
 });
