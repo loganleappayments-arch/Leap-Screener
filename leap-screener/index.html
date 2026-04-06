@@ -694,15 +694,10 @@ Return ONLY this JSON:
       <div style="flex:1">
         <div class="manual-title">${item.title}</div>
         <div class="manual-desc">${item.description}</div>
-        ${isGoogle ? `
-          <div id="google-results-wrap" style="margin-top:10px"></div>
-          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
-            <button class="manual-link" onclick="loadGoogleResults('${encodeURIComponent(item.url.split('q=')[1] || '')}', '${encodeURIComponent(item.url)}')">
-              🔍 Show top results
-            </button>
-            <a class="manual-link" href="${item.url}" target="_blank">See all on Google ↗</a>
-          </div>
-        ` : item.url ? `<a class="manual-link" href="${item.url}" target="_blank">Open ↗</a>` : ''}
+${isGoogle ? `
+  <div id="google-results-wrap" style="margin-top:10px"></div>
+  <a class="manual-link" href="${item.url}" target="_blank" style="margin-top:8px">See all on Google ↗</a>
+` : item.url ? `<a class="manual-link" href="${item.url}" target="_blank">Open ↗</a>` : ''}
       </div>
     </div>`;
 });
@@ -711,14 +706,19 @@ Return ONLY this JSON:
     document.getElementById('results').classList.add('visible');
     document.getElementById('runBtn').disabled = false;
     document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    // Auto-load Google results
+const bizName = lead.bizName || '';
+const bizState = lead.bizState || '';
+const googleQuery = (bizName + ' ' + bizState).trim();
+if (googleQuery) loadGoogleResults(encodeURIComponent(googleQuery), '');
   }
-async function loadGoogleResults(encodedQuery, encodedSearchUrl) {
+async function loadGoogleResults(encodedQuery) {
   const wrap = document.getElementById('google-results-wrap');
   wrap.innerHTML = '<div style="font-size:12px;font-family:var(--mono);color:var(--muted);padding:8px 0">Loading results...</div>';
 
   try {
     const query = decodeURIComponent(encodedQuery);
-    const res = await fetch(`${API_BASE}/api/google-search?q=${encodeURIComponent(query)}`);
+    const res = await fetch(`${API_BASE}/api/google-search?q=${query}`);
     const data = await res.json();
 
     if (!res.ok || !data.results?.length) {
