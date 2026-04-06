@@ -163,6 +163,38 @@ app.get('/api/test-key', (_, res) => {
   });
 });
 
+
+// ─── Route: Google search ─────────────────────────────────────────────────────
+app.get('/api/google-search', async (req, res) => {
+  try {
+    const query = req.query.q;
+    if (!query) return res.status(400).json({ error: 'Missing query' });
+
+    const apiKey = process.env.GOOGLE_API_KEY;
+    const cseId  = process.env.GOOGLE_CSE_ID;
+    if (!apiKey || !cseId) throw new Error('Google API not configured');
+
+    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cseId}&q=${encodeURIComponent(query)}&num=5`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!response.ok) throw new Error(data.error?.message || 'Google API error');
+
+    const results = (data.items || []).map(item => ({
+      title:   item.title,
+      url:     item.link,
+      snippet: item.snippet,
+    }));
+
+    res.json({ results, searchUrl: `https://www.google.com/search?q=${encodeURIComponent(query)}` });
+
+  } catch (err) {
+    console.error('[Google]', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/api/health', (_, res) => res.json({ ok: true }));
 
